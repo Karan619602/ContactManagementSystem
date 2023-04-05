@@ -1,10 +1,10 @@
 const { logout } = require('../controllers/UserAuth')
-const { User } = require('../models/index')
+const  User = require('../models/User')
 const jwt = require('jsonwebtoken')
 
 const sendToken = (user, statusCode, res) => {
     // Create jwt token
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_TIME
     })
 
@@ -21,7 +21,7 @@ const sendToken = (user, statusCode, res) => {
         success: true,
         token,
         user
-    })
+    }) 
 }
 
 const isAuthenticatedUser = (async (req, res, next) => {
@@ -34,7 +34,7 @@ const isAuthenticatedUser = (async (req, res, next) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        req.user = await User.findByPk(decoded.id)
+        req.user = await User.findById(decoded.id)
         console.log(req.user);
         next()
     }

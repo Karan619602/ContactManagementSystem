@@ -1,5 +1,4 @@
-const { Contacts } = require('../models/index')
-const { Op } = require('sequelize');
+const Contacts = require('../models/Contacts')
 
 //Create Contact  => /api/v1/Contact/create  -> Protected Route
 
@@ -27,44 +26,52 @@ const CreateContact = (async (req, res, next) => {
 //Get All Contacts  OR Search By firstName, LastName, PhoneNo, email => /api/v1/Get/Contacts  -> Protected Route
 
 const GetContacts = (async (req, res, next) => {
-    const query = req.query;
-
-    const searchParams = {
-        [Op.or]: [
-            { firstName: { [Op.like]: `%${query.firstName}%` } },
-            { LastName: { [Op.like]: `%${query.LastName}%` } },
-            { email: { [Op.like]: `%${query.email}%` } },
-            { PhoneNo: { [Op.like]: `%${query.PhoneNo}%` } },
-        ],
-    };
-
-    Contacts.findAll({
-        where: query ? searchParams : {},
-    })
-        .then((contacts) => {
-            res.json({ contacts });
-        })
-        .catch((error) => {
-            res.status(500).json({ message: error.message });
-        });
+    const { firstName, LastName, email, PhoneNo } = req.query;
+    const query = {};
+  
+    if (firstName) {
+      query.firstName = firstName;
+    }
+  
+    if (LastName) {
+      query.LastName = LastName;
+    }
+  
+    if (email) {
+      query.email = email;
+    }
+  
+    if (PhoneNo) {
+      query.phone = PhoneNo;
+    }
+  
+    try {
+      const contacts = await Contacts.find(query);
+      res.json(contacts);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
 })
 
 // Update Contacts -> api/v1//Contact/update/:id -> Protected Route
 const UpdateContact = (async (req, res, next) => {
 
-    const { firstName, LastName, email, PhoneNo } = req.body;
-    const { id } = req.params;
+    
+    const Contact = await Contacts.findById(req.params.id)
 
-    Contacts.update(
-        { firstName, LastName, email, PhoneNo },
-        { where: { id } }
-    )
-        .then(() => {
-            res.json({ message: 'Contact updated successfully' });
-        })
-        .catch((error) => {
-            res.status(500).json({ message: error.message });
-        });
+const updatecontact = await Contacts.findByIdAndUpdate(req.params.id, req.body,{
+    new: true,
+     runValidators: true,
+    useFindAndModify: false
+});
+
+res.status(200).json({
+    success:true,
+    updatecontact
+})
+
+  
 
 
 })
@@ -75,16 +82,13 @@ const DeleteContact = (async (req, res, next) => {
 
     const { id } = req.params;
 
-    try {
-        const contact = await Contacts.findByPk(id);
+   
+        const contact = await Contacts.findByIdAndRemove(id);
         if (!contact) {
             throw new Error(`Contact with ID ${id} not found`);
         }
-        await contact.destroy();
         res.send(`Contact with ID ${id} deleted successfully`);
-    } catch (err) {
-        res.send('Error deleting contact:', err);
-    }
+
 
 
 })

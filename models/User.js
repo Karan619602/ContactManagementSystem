@@ -1,31 +1,34 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./config');
+const mongoose=require('mongoose')
 const bcrypt = require('bcrypt');
 
-const User = sequelize.define('User', {
-    username: {
-        type: DataTypes.STRING,
-        allowNull: false,
+const userSchema =new mongoose.Schema({
+    username:{
+        type: String,
+        required :[true, 'please enter your name'],
+        maxlength:[30,'Your name cannot exceed 30 characters'],
         unique:true
-      },
-      password: {
-        type: DataTypes.STRING,
-        allowNull: false
+    },
+    password:{
+      type: String,
+      required :[true, 'please enter your password'],
+      minlength:[6,'Your password must be longer than 6 characters'],
+      select: false
+            },
+      createdAt:{
+          type:Date,
+          Default:Date.now()
       }
-    }, {
-      hooks: {
-        beforeCreate: async (user) => {
-          const salt = await bcrypt.genSalt(10);
-          user.password = await bcrypt.hash(user.password, salt);
-        },
-        beforeUpdate: async (user) => {
-          if (user.changed('password')) {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(user.password, salt);
-          }
-        }
-      },
-    
-  });
-  
+})
+
+userSchema.pre('save', async function (next){
+if(!this.isModified('password')){
+  next()
+}
+this.password= await bcrypt.hash(this.password,10)
+return this;
+})
+
+const User= mongoose.model('User', userSchema)
+
+
   module.exports = User;

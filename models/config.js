@@ -1,16 +1,11 @@
-const {Sequelize}= require('sequelize');
+const mongoose=require('mongoose')
+const connectdatabase =()=>{
+   mongoose.connect(process.env.CONNECTION_URL,{
+        useNewUrlParser: true, 
+        useUnifiedTopology: true,
+    }).then( (con)=>{
+console.log(`connect to database : ${con.connection.host}`);
+    })
+}
 
-
-const sequelize = new Sequelize(
-  process.env.database_name, 
-  process.env.user_name, 
-  process.env.password, {
-    dialect: 'mysql',
-    dialectModule: require('mysql2'),
-    host: process.env.host
-  });
-
- 
-  module.exports=sequelize
-
-  
+module.exports= connectdatabase;

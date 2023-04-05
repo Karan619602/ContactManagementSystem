@@ -1,25 +1,34 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./config');
-const User = require('./User');
+const mongoose=require('mongoose')
 
-const Contacts = sequelize.define('Contacts', {
-    firstName: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      LastName: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      email: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      PhoneNo: {
-        type: DataTypes.STRING,
-        allowNull: false
-        
+const Contactschema = new mongoose.Schema({
+    firstName:{
+        type: String,
+        required :[true, 'please enter your firstname'],
+    },
+    LastName:{
+        type: String,
+        required :[true, 'please enter your Lastname'],
+    },
+    email:{
+      type: String,
+      required :[true, 'please enter your email'],
+            },
+    PhoneNo:{
+    type: String,
+     required :[true, 'please enter your ten digit PhoneNo'],
+    },
+    UserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
+      createdAt:{
+          type:Date,
+          Default:Date.now()
       }
-  });
+})
+ 
+  const Contacts= mongoose.model('Contact', Contactschema)
+
   
   module.exports = Contacts;

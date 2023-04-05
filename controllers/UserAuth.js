@@ -1,5 +1,4 @@
-const jwt = require('jsonwebtoken')
-const { User } = require('../models/index')
+const  User  = require('../models/User')
 const bcrypt = require('bcrypt');
 const { sendToken } = require('../authentication/jwttoken')
 
@@ -15,7 +14,7 @@ const RegisterUser = (async (req, res, next) => {
     })
     sendToken(user, 200, res)
 
-})
+}) 
 
 //login user => /api/v1/login
 
@@ -23,11 +22,7 @@ const RegisterUser = (async (req, res, next) => {
 const login = (async (req, res, next) => {
     const { username, password } = req.body;
 
-    const user = await User.findOne({
-        where: {
-            username: username
-        }
-    })
+    const user = await User.findOne({username}).select('+password')
     console.log(user);
     if (!user) {
         return res.status(401).json({ message: 'Auth failed!' })
@@ -38,7 +33,6 @@ const login = (async (req, res, next) => {
         }
 
     })
-    console.log("fffff");
     sendToken(user, 200, res)
 })
 
