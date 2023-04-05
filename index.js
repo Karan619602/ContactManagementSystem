@@ -9,7 +9,7 @@ dotenv.config({ path: '.env' })
 require('./models')
 app.use(express.json())
 app.use(cookieParser());
-
+ 
 
 const UserRoutes = require('./routes/UserRouter')
 const ContactRoutes = require('./routes/ContactRoutes')
